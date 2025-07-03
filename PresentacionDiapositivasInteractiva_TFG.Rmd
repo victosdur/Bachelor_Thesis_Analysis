@@ -1,0 +1,1020 @@
+---
+title: "TFG"
+author: "Victor Toscano Durán"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    storyboard: true 
+    css: estilo.css
+runtime: shiny
+---
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+library(flexdashboard)
+library(shiny)
+library(tidyverse)
+
+```
+
+# Introducción {.storyboard}
+
+El objetivo del presente trabajo es el estudio y análisis de la encuesta de condiciones de vida y de sus principales indicadores en España durante el periodo de 2008 a 2020, haciendo énfasis en estudiar cómo han evolucionado estos indicadores y la desigualdad en España y sus Comunidades Autónomas.
+
+
+
+### ¿Que es la Encuesta de Condiciones de Vida?
+
+
+Es una operación estadística armonizada que se realiza de manera anual en todos los países de la UE, relativa a las estadísticas comunitarias sobre la renta y las condiciones de vida.
+
+La encuesta de condiciones de vida proporciona información sobre la calidad de vida en nuestro país y permite abordar el análisis de la pobreza y de la desigualdad de una manera homologable y anual. Actualmente, es un tema de relevancia debido a la reciente crisis económica que ha vivido el país en 2008 y que se ve perjudicada hoy en  día por otros sucesos de gran escala como puede ser la pandemia Covid-19. Estas características sobre nuestra sociedad son medibles gracias a los indicadores proporcionados por dicha encuesta.
+
+
+### Características
+
+Estos datos presentan dos dimensiones:
+
+<ul>
+<li>
+<strong>Transversal</strong> : Sacar conclusiones de calidad en lo que a la actualidad y comparabilidad se refiere.
+
+</li>
+
+<li>
+
+<strong>Longitudinal</strong> : Estudiar los cambios que se producen en ciertas personas con el paso del tiempo.
+
+</li>
+</ul>
+
+Algunas de sus características más relevantes son:
+
+<ul>
+<li>
+Comienza en 2004 y es una encuesta de periodicidad anual.
+
+</li>
+
+<li>
+
+Se realiza de manera presencial, excepto en 2020 y 2021 a causa de la pandemia Covid-19, donde se realiza de manera telemática la recogida de información.
+
+</li>
+
+<li>
+
+Aunque el INE es el responsable de presentar y difundir los datos de esta encuesta, algunas de las Comunidades Autónomas explotan la publicación de datos de la ECV para su ámbito territorial. Destacar el caso de Cataluña.
+
+</li>
+</ul>
+
+### ¿Cuáles son sus objetivos? {data-height="700"}
+
+
+<ul>
+
+<li>
+**Proporcionar información sobre la calidad de vida en nuestro país.**
+
+</li>
+
+<li>
+
+**Abordar el análisis de la pobreza y de la desigualdad de una manera homologable y anual.**
+
+</li>
+
+<li>
+
+**Comparar la distribución de los ingresos y exclusión social en el ámbito europeo.**
+
+</li>
+</ul>
+
+En conclusión, la ECV nos ayuda a conocer la situación de la población, con la finalidad de ayudar en la creación de políticas públicas para poder mejorar las condiciones de la población como pueden ser la exclusión social, ingresos, rentas, etc.
+
+### Evolución Temporal
+
+
+En ciertos momentos, se han introducido algunos cambios en la metodología de la ECV en España con el fin de obtener datos más fiables y generales.
+
+Los más destacables son:
+
+<ol>
+<li>
+Modificación de la definición de "hijos dependientes". (2008)
+
+</li>
+
+<li>
+
+Incorporación de registros administrativos (2013), con el fin de complementar la información recogida.Esto produjo una ruptura en la serie temporal de esta estadística.
+
+</li>
+
+<li>
+
+Ampliación de la muestra para Cataluña. (2016)
+
+</li>
+
+<li>
+
+El nombre de esta operación estadística era "Estadística de distribución personal de la renta y riesgo de pobreza" antes de 2016.
+
+</li>
+</ol>
+
+### Ámbito de Investigación
+
+
+**Poblacional** : Personas miembros de hogares privados que residen en viviendas familiares principales. La población seleccionable para la investigación son los miembros del hogar de 16 años o más el 31 de diciembre del año anterior a la entrevista.
+
+**Geográfico** : Todo el territorio español.
+
+**Temporal** : Difiere en función de la variable objeto de estudio. 
+
+
+### Cuestionario
+
+
+El cuestionario correspondiente a la ECV se divide en 4 partes:
+
+<ol>
+
+<li>
+
+**Mesa de composición del hogar** : Información básica de las personas que ocupan la vivienda.
+
+</li>
+
+<li>
+
+**Ficha del hogar** : Información general de las personas que componen el hogar. (solo miembros del hogar)
+
+</li>
+
+<li>
+
+**Cuestionario del hogar** : Información sobre la vivienda. (Persona responsable del hogar)
+
+</li>
+
+<li>
+
+**Cuestionario individual** : Información detallada de cada miembro del hogar. (16 años o mayor el 31 de diciembre del año anterior)
+
+</li>
+
+</ol>
+
+
+
+
+
+### Muestreo
+
+
+La ECV es una encuesta anual con un diseño de panel rotante, en el que la muestra la forman cuatro submuestras independientes, siendo cada una de ellas un panel de cuatros años de duración. Cada año se renueva la muestra en uno de los paneles.
+
+Estas submuestras están formadas por dos etapas cuyas unidades son:
+
+<ol>
+
+<li>
+
+Unidades primera etapa: **Secciones censales**. Muestreo bietápico con estratificación proporcional a su tamaño.
+
+</li>
+
+<li>
+
+Unidades segunda etapa: **Viviendas familiares principales**. Muestreo sistemático con arranque aleatorio con igual probabilidad.
+
+</li>
+
+</ol>
+
+
+
+
+# Definiciones
+
+Para alcanzar los objetivos según los reglamentos europeos, se necesita definir una serie de conceptos.
+
+## Referencias {.tabset}
+
+### Viviendas
+
+Una **vivienda** es un recinto cuya funcionalidad es la de ser habitado por personas o se constituye como la residencia habitual de alguna persona. Hay dos tipos de vivienda:
+
+<ul>
+
+<li>
+
+**Colectivas** : Habitadas por un grupo de personas sometidas a una autoridad. (sin lazo familiar ni de convivencias)
+
+</li>
+
+<li>
+
+**Familiar** : Habitadas por una o varias personas sin la necesidad de estar unidas por parentesco. Es principal si es utilizada como residencia habitual de uno o más hogares.
+
+</li>
+
+</ul>
+
+Los **alojamientos** son viviendas familiares, pero con la particularidad de ser móvil o improvisada. Pueden ser fijos(chabolas) o móviles(barcos)
+
+Según la manera en la que las personas residen en una vivienda se definen tres tipos de hogares:
+
+<ul>
+
+<li>
+
+**Privado** :Grupo de personas habitan en una vivienda familiar principal y comparten alimentos y otros bienes con cargo a un mismo presupuesto. Objeto de investigación
+
+</li>
+
+<li>
+
+**Colectivo** : Hoteles, residencias, asilos etc.
+
+</li>
+
+<li>
+
+**Hogar panel** : Hogar privado que resida en una vivienda de la muestra.
+
+</li>
+
+</ul>
+
+### Personas
+
+El conjunto de personas que tienen la misma residencia habitual y participan de un presupuesto común son los **miembros de un hogar privado**. Se considera **residente habitual** de una vivienda a la persona que la tiene como domicilio y descansa mayoritariamente en dicha vivienda.
+
+Personas relevante en la ECV:
+
+<ul>
+
+<li>
+
+**Persona panel** : Miembros de un hogar panel mayor de 13 años. El resto son **corresidentes** . 
+
+</li>
+
+<li>
+
+**Persona encuestable** : Miembro del hogar de 16 años o más.En caso contrario,se considera menor.
+
+</li>
+
+<li>
+
+**Antiguo miembro** : No son miembros del hogar, pero han residido durante un mínimo tres meses.
+
+</li>
+
+<li>
+
+**Persona responsable del hogar** : Persona que tiene a su nombre la propiedad. Si es compartida por dos personas la primera responsable es la mayor.
+
+</li>
+
+<li>
+
+**Informante** : Generalmente la persona responsable, pero si por algún motivo no fuese posible ,debe ser alguien que pueda hablar en nombre del hogar.
+
+</li>
+
+</ul>
+
+### Otras definiciones
+
+Como bien hemos dicho en el resumen y en la introducción, los objetivos fundamentales que tiene la encuesta son el estudio de la distribución de la renta y el riesgo de pobreza y de la exclusión social, así como la desigualdad. Para alcanzar estos objetivos de acuerdo con los reglamentos europeos definidos, se definen una serie de conceptos que nos va a servir de ayuda conocer de antemano.
+
+**Ingresos** : Pueden ser brutos o netos (sin impuestos y cotizaciones)
+
+**Renta por persona/unidad de consumo** : División entre la renta neta del hogar y el número total de miembros/U.C del hogar.
+
+**Unidad de consumo** : Manera de expresar los miembros del hogar para mejor comparabilidad. Peso 1 primer adulto, 0.5 el resto y 0.3 menores de 14 años.
+
+**Umbral de pobreza** : Nivel de ingreso mínimo para adquirir un adecuado nivel de vida.
+
+**Población en riesgo de pobreza** : Proporción de la población que vive en un hogar con renta menor al umbral de pobreza.
+
+**Pobreza** : las personas, familias y grupos de personas pobres son aquellos que están excluidos de las necesidades mínimas de consumo y actividades de vida aceptable debido a la escasez de recursos. (Consejo europeo,1995)
+
+**Exclusión social** : individuos empujados al margen de la sociedad a los cuáles se les impide participar plenamente debido a su pobreza, falta de competencias básicas etc. Pobres, marginados y desviados.
+
+**Desigualdad social** : falta de equilibrio entre dos o más personas.
+
+# Indicadores
+
+El objetivo de la ECV es poner de relieve los principales indicadores estadísticos,asi como sus propiedas más relevante y discutir sobre los valores obtenidos.
+
+Estos indicadores nos permiten conocer y medir la calidad de vida y estan generalizados para toda la población.
+
+## Indicadores {.tabset}
+
+### Indicadores
+
+**Renta neta disponible del hogar** : Suma ingresos de los miembros del hogar.
+
+**Renta neta media del hogar** : División renta del conjunto de hogares entre el número total de hogares.
+
+**Renta neta media por persona** : Igual que el anterior entre el número de personas.(o la renta media del hogar / número medio de individuos por hogar).
+
+**Tasa de riesgo de pobreza** : Porcentaje de personas que vive en hogares considerado de pobreza.
+
+**Población con privación material** : Puede ser no severa (no cumplir alguno de los items) o severa (no cumplir 4 items o más).
+
+**Intensidad de trabajo del hogar** : División suma nº total de meses  que cada miembro del hogar ha trabajado entre suma nº total de meses en los que cada miembro ha podido trabajar. (18 a 59 años) (0 escasa)
+
+**Población en hogares con intensidad de trabajo escasa** : Individuos del hogar cuyos adultos tienen intensidad menor de 0,20.
+
+**Tasa AROPE** : Porcentaje personas en riesgo de pobreza, situación de privación material severa y/o vive en hogar de intensidad de trabajo escasa.
+
+**S80/S20** : Cociente entre los ingresos totales del 20% con ingresos más elevados y los ingresos totales del 20% con ingresos más bajos.(1 igualdad)
+
+### Indicadores de desigualdad
+
+No se compararán de manera numérica el valor obtenido para estos coeficientes debido a que los valores no son comparables entre sí, y por lo tanto carece de sentido hacer la comparación. Lo que si podremos realizar y observar será la evolución de estos indicadores de desigualdad de manera global o de manera desagregada para cada uno de los indicadores ya que las evoluciones entre ellos sí que resultan comparables.
+
+**Curva Lorenz** : Analiza la desigualdad de la renta y riqueza, destacando que el abombamiento de dicha curva es un indicador de desigualdad existente en la distribución de la renta. 
+Sea x una distribución de renta en el espacio D, a partir de ella se construyen los porcentajes acumulados de individuos y de rentas repartidas:
+
+$$p_0=0;p_i = \frac{i}{N}$$
+$$q_0=0;q_i = \frac{1}{N*\bar{x}} * \sum_{j=1}^i x_j$$
+
+**Índice y Coeficiente Gini:** Mide la desigualdad de la distribución de la renta al igual que la curva de Lorenz. Se calcula como el cociente entre el área comprendida entre la diagonal de perfecta igualdad y la curva de Lorenz (A) y el área del triangulo creado a partir de la propia diagonal (A+B), es decir:
+
+$$ Coeficiente \space de \space Gini = \frac{A}{A+B} $$
+
+Toma valores en el intervalo [0,1] donde 0 significa la igualdad máxima en la distribución de la renta en la población.
+
+Un enfoque alternativo es definir el coeficiente de Gini como la mitad de la diferencia media absoluta relativa. 
+$$ Coeficiente \space de \space Gini = \frac{\sum_{i=1}^n\sum_{j=1}^n|x_i-x_j|}{2n^2\bar{x}} $$
+
+**Índice Theil:** Derivado de la noción de entropía de la teoría de la información. Viene expresado por la siguiente fórmula:
+
+$$ T = log(n) - H(x) = \sum_{i=1}^{n} x_i * log(n*x_i)$$ 
+La entropía (H(x)) estudia en general el desorden,pero en este caso cuanto mayor sea menor será la desigualdad
+
+**Índice Atkinson**: También mide la desigualdad en los ingresos de la población,además de poder determinar qué extremos de la distribución contribuye más a la desigualdad observada. Viene definido por la siguiente fórmula: $$Atk(e)=1-(\frac{1}{n}\sum_{i=1}^n(\frac{y_i}{\mu})^{1-e})^{\frac{1}{1-e}}, si \space e  \geq0\space y \neq 1$$
+
+En este índice se introduce el coeficiente "e" que representa el rechazo a la desigualdad, es decir, cuanto mayor sea "e", la ponderación de los ingresos será mayor en los hogares con menos ingresos y observaremos los cambios en la parte más baja de la distribución de la renta. Varía entre 0 y 1.
+
+# Evolución España {data-navmenu="Análisis"}
+
+
+```{r include=FALSE}
+library(readxl) #Para poder leer archivos excel
+library(tidyverse) 
+library(ggplot2)#para graficos avanzados
+library(ggthemes) 
+library(magrittr)
+RentaNetaMedia <- read_excel("RentaNetaMedia.xls",range = "A2:D14",col_names = c("Total","Ambos sexos","Hombres","Mujeres"))
+datos1=tibble(Ano=rep(RentaNetaMedia$Total,3),Renta=c(RentaNetaMedia$`Ambos sexos`,RentaNetaMedia$Hombres,RentaNetaMedia$Mujeres),grupo=rep(c("Total","Hombre","Mujer"),each=13))
+datos1
+grafrenta=ggplot(data=datos1,aes(x=Ano,y=Renta,color=grupo,group=grupo))+
+  geom_line()+
+  geom_point(size=2)+
+  labs(title="Renta Neta Media",
+       subtitle="                  por Año",
+       y="Renta",x="Año",
+       caption="Fuente:Elaboración Propia TFG") +
+  theme_solarized()+
+  guides(color=guide_legend(title="Sexo"))
+UmbralPobreza <- read_excel("UmbralPobreza.xls",range = "A2:B14",col_names = c("Ano","Umbral Pobreza"))
+UmbralPobreza %<>% arrange(Ano)
+grafumbral=ggplot(data=UmbralPobreza,aes(x=Ano,y=`Umbral Pobreza`,group=1))+
+  geom_line(alpha = 1,linetype = "solid", colour="blue",size = 1)+
+  geom_point(size=2)+
+  labs(title="Umbral Pobreza",
+       subtitle="                  por Año",
+       y="Umbral Pobreza",x="Año",
+       caption="Fuente:Elaboración Propia TFG") +
+  theme_solarized()
+
+TasaPobrezaArope <- read_excel("TasaPobrezaArope.xlsx",range = "A8:B20",col_names = c("Ano","Tpobreza"),col_types = c("numeric","numeric"))
+TasaPobrezaArope %<>% arrange(Ano)
+
+
+grafarope=ggplot(data=TasaPobrezaArope,aes(x=Ano,y=Tpobreza,group=1))+
+  geom_line()+
+  scale_y_continuous(limits = c(20,30))+
+  scale_x_continuous(breaks=seq(2008,2020,1))+
+  geom_smooth()+
+  geom_point(size=4)+
+  geom_label(aes(label=Tpobreza,y=Tpobreza+0.25),show.legend = FALSE)+
+  labs(title="Tasa de riesgo de pobreza(Tasa AROPE)",
+       subtitle="                  por Año",
+       y="Tasa de riesgo de pobreza",x="Año",
+       caption="Fuente:Elaboración Propia TFG") +
+  theme_solarized()
+s80s20 <- read_excel("s80s20.xls", range = "A8:B20",col_names = c("Ano","s80s20"))
+
+grafs80s20=ggplot(data=s80s20,aes(x=Ano,y=`s80s20`,group=1))+
+  geom_line()+
+  scale_y_continuous(limits = c(3,10))+
+  geom_point(size=2)+
+  geom_label(aes(label=`s80s20`,y=`s80s20`+0.5),show.legend = FALSE)+
+  labs(title="Ratio s80s20 por 100",
+       subtitle="                  por Año",
+       y="Ratio s80s20",x="Año",
+       caption="Fuente:Elaboración Propia TFG") +
+  theme_solarized()
+IGini <- read_excel("Gini.xlsx", range = "A8:B20",col_names = c("Ano","Indice Gini"))
+grafgini=ggplot(data=IGini,aes(x=Ano,y=`Indice Gini`,group=1))+
+  geom_line()+
+  scale_y_continuous(limits = c(30,40))+
+  geom_point(size=2)+
+  geom_label(aes(label=`Indice Gini`,y=`Indice Gini`+1),show.legend = FALSE)+
+  labs(title="Índice de Gini",
+       subtitle="                  por Año",
+       y="Índice Gini",x="Año",
+       caption="Fuente:Elaboración Propia TFG") +
+  theme_solarized()
+```
+
+```{r include=FALSE}
+# devtools::install_github("ianmoran11/mmtable2") instalar en terminal, previo instalar devtools (en tools: install packages).
+library(mmtable2)
+library(gt)
+    RentaNetaMedia <- read_excel("RentaNetaMedia.xls",range = "A1:D14")
+RentaNetaMedia %<>% arrange(Total)
+UmbralPobreza <- read_excel("UmbralPobreza.xls",range = "A1:B14")
+UmbralPobreza %<>% arrange(Año)
+renta=c()
+umbral=c()
+for(i in 1:12){
+  renta[i]=RentaNetaMedia$`Ambos sexos`[i+1]/RentaNetaMedia$`Ambos sexos`[i]*100-100;
+      umbral[i]=UmbralPobreza$UmbralPobreza[i+1]/UmbralPobreza$UmbralPobreza[i]*100-100}
+
+comparacion=tibble(renta,umbral,Año=2009:2020)
+comparacion=comparacion %>% pivot_longer(1:2,names_to="Indicador",values_to="valores") %>% mutate(valores=round(valores,2))
+tabla=comparacion %>% mmtable(valores) + header_left(Indicador) + header_top(Año)
+x=tabla %>% tab_header(title="Evolución Renta y Umbral",subtitle="con respecto añ año anterior (%)") %>% tab_source_note("Elaboración propia TFG")
+```
+
+
+## Col 1 {.sidebar}
+
+<h4>A continuación, debe seleccionar el indicador sobre el cuál desea obtener el gráfico de la serie temporal.</h4>
+```{r}
+library(shiny)
+library(flexdashboard)
+
+selectInput("indic","Seleccione indicador:",choices = c("Renta neta media por persona","Umbral de pobreza","Tasa AROPE","Ratio s80s20","Índice Gini"))
+
+
+```
+
+
+
+## Col 2
+
+```{r}
+renderPlot({
+    if(input$indic=="Renta neta media por persona"){
+      grafrenta
+    } else{
+      if(input$indic=="Umbral de pobreza"){
+        grafumbral
+      } else{if(input$indic=="Tasa AROPE"){
+        grafarope
+      }else{if(input$indic=="Ratio s80s20"){
+        grafs80s20 
+      }else{grafgini}}
+        }
+    }
+  })
+
+```
+
+<h2>Gráfico evolución renta neta media anual por persona y umbral de pobreza año tras año.</h2>
+
+<div> A continuación, se mostrara la evolución que han presentado estos dos indicadores con respecto al año anterior, de manera que nos ayude a interpretar los gráficos de series temporales ya citados. </div>
+```{r}
+x
+```
+
+<div> Nota: Existe relación en la evolución de ambos indicadores, pero el umbral de pobreza crece más que la renta. </div>
+
+# Indicadores comunidades autónomas {data-navmenu="Análisis"}
+
+```{r include=FALSE}
+#2009
+library(jsonlite)
+mydata <- fromJSON("https://code.highcharts.com/mapdata/countries/es/es-all.geo.json", flatten = TRUE)
+mydata$features
+"countries/es/es-all"
+Myhcmap2 <- fromJSON("data/shapefiles_espana_ccaa_2.geojson", simplifyVector = FALSE)
+Myhcmap2$features
+
+ccaacsv <- read_csv2("data/ccaa.csv", locale = locale(encoding="ISO-8859-1"),
+                     col_types = cols(Codigo = col_character()))
+
+library(highcharter)
+library(plotly)
+
+#2009
+library(readr)
+basicos_hogar<- read_csv("Microdatos/datos2009/esudb09d.csv")
+basicos_persona<- read_csv("Microdatos/datos2009/esudb09r.csv")
+detallados_hogar<- read_csv("Microdatos/datos2009/esudb09h.csv")
+detallados_persona<- read_csv("Microdatos/datos2009/esudb09p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HX040,HX240,vhMATDEP) 
+library(ineq)
+library(reldist)
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+
+union_personas_casa %<>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),Igini=gini(HY020/HX240,weights = RB050),
+)
+union_hogar %<>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),personas_hogar=sum(HX040*DB090)/sum(DB090),renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+union_hogar$codigo = c(12,3,6,16,15,17,2,13,7,8,11,9,10,4,1,14,18,19,5)
+union_hogar %<>% arrange(codigo)
+union_hogar %<>% mutate(renta_hogar_ccaa=round(renta_hogar,2),                     personas_hogar=round(personas_hogar,2),renta_persona_ccaa=round(renta_persona,2),hogatpobreza=round(100*hogatpobreza,2))
+union_personas_casa$codigo = c(12,3,6,16,15,17,2,13,7,8,11,9,10,4,1,14,18,19,5)
+union_personas_casa %<>% arrange(codigo) %>% mutate(Arope=round(100*Arope,2),Gini=round(100*Igini,2))
+
+
+
+graf1=highchart() %>%
+  hc_add_series_map(Myhcmap2,union_hogar, value = "renta_persona_ccaa", joinBy = c("codaut_sin", "codigo"),  name="Renta neta media por persona",dataLabels = list(enabled = TRUE,                                format = '{point.properties.name}')) %>%hc_colorAxis(dataClasses = color_classes(seq(8000, 15000, by=1000))) %>% hc_legend(layout = "vertical", align = "right",floating = TRUE, valueDecimals = 0) %>% hc_title(text="Renta neta media por persona por Comunidad Autónoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+
+
+
+
+
+
+graf2=highchart() %>%
+  hc_add_series_map(Myhcmap2, union_personas_casa, value = "Arope", joinBy = c("codaut_sin", "codigo"),name="Tasa de pobreza Arope",dataLabels = list(enabled = TRUE,                          format ='{point.properties.name}')) %>%
+  hc_colorAxis(dataClasses = color_classes(seq(10, 40, length.out=8 ))) %>%
+  hc_legend(layout = "vertical", align = "right",
+            floating = TRUE, valueDecimals = 0) %>%
+  hc_title(text="Tasa de pobreza AROPE por Comunidad Autonoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+
+graf3=highchart() %>%
+  hc_add_series_map(Myhcmap2, union_personas_casa, value = "Gini", joinBy = c("codaut_sin", "codigo"),
+                    name="C Gini",
+                    dataLabels = list(enabled = TRUE,
+                                      format = '{point.properties.name}')) %>%
+  hc_colorAxis(dataClasses = color_classes(seq(26, 42, length.out=8 ))) %>%
+  hc_legend(layout = "vertical", align = "right",
+            floating = TRUE, valueDecimals = 0) %>%
+  hc_title(text="Coeficiente de Gini por Comunidad Autonoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+#2020
+#2020
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HX040,HX240,vhMATDEP) 
+
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+
+union_personas_casa %<>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+                                                       Igini=gini(HY020/HX240,weights = RB050),
+)
+union_hogar %<>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+                                               personas_hogar=sum(HX040*DB090)/sum(DB090),
+                                               renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+                                               hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+union_hogar$codigo = c(12,3,6,16,15,17,2,13,7,8,11,9,10,4,1,14,18,19,5)
+union_hogar %<>% arrange(codigo)
+union_hogar %<>% mutate(renta_hogar_ccaa=round(renta_hogar,2),
+                        personas_hogar=round(personas_hogar,2),
+                        renta_persona_ccaa=round(renta_persona,2),
+                        hogatpobreza=round(100*hogatpobreza,2))
+union_personas_casa$codigo = c(12,3,6,16,15,17,2,13,7,8,11,9,10,4,1,14,18,19,5)
+union_personas_casa %<>% arrange(codigo) %>% mutate(
+  Arope=round(100*Arope,2),
+  Gini=round(100*Igini,2))
+
+graf4=highchart() %>%
+  hc_add_series_map(Myhcmap2, union_hogar, value = "renta_persona_ccaa", joinBy = c("codaut_sin", "codigo"),
+                    name="Renta neta media por persona",
+                    dataLabels = list(enabled = TRUE,
+                                      format = '{point.properties.name}')) %>%
+  hc_colorAxis(dataClasses = color_classes(seq(9000, 16000, by=1000))) %>% 
+  hc_legend(layout = "vertical", align = "right",
+            floating = TRUE, valueDecimals = 0) %>%
+  hc_title(text="Renta neta media por persona por Comunidad Autónoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+
+
+
+
+
+
+graf5=highchart() %>%
+  hc_add_series_map(Myhcmap2, union_personas_casa, value = "Arope", joinBy = c("codaut_sin", "codigo"),
+                    name="Tasa de pobreza Arope",
+                    dataLabels = list(enabled = TRUE,
+                                      format = '{point.properties.name}')) %>%
+  hc_colorAxis(dataClasses = color_classes(seq(10, 45, length.out=8 ))) %>%
+  hc_legend(layout = "vertical", align = "right",
+            floating = TRUE, valueDecimals = 0) %>%
+  hc_title(text="Tasa de pobreza AROPE por Comunidad Autónoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+
+
+graf6=highchart() %>%
+  hc_add_series_map(Myhcmap2, union_personas_casa, value = "Gini", joinBy = c("codaut_sin", "codigo"),
+                    name="C Gini",
+                    dataLabels = list(enabled = TRUE,
+                                      format = '{point.properties.name}')) %>%
+  hc_colorAxis(dataClasses = color_classes(seq(26, 44, length.out=8 ))) %>%
+  hc_legend(layout = "vertical", align = "right",
+            floating = TRUE, valueDecimals = 0) %>%
+  hc_title(text="Coeficiente de Gini por Comunidad Autónoma") %>% hc_caption(text="Fuente:Elaboración propia TFG")
+
+  
+```
+
+## Col 1 {.sidebar}
+
+<h4> A continuación, debe seleccionar el indicador sobre el cuál desea obtener el mapa de España con el valor de dicho indicador. </h4>
+```{r}
+ helpText("Mostraremos unicamente estos 3 indicadores ya que son los más importantes en mi opinión y que posteriormente influiran en otra sección.")
+selectInput("ano","Seleccione Año:",choices=c("2009","2020"))
+selectInput("indic2","Seleccione indicador:",choices = c("Renta neta media por persona","Tasa AROPE","Indice Gini"))
+```
+
+## Col 2
+
+```{r}
+library(highcharter)
+renderHighchart({
+    if(input$ano=="2009"){
+      if(input$indic2=="Renta neta media por persona"){
+      graf1
+    } else{if(input$indic2=="Tasa AROPE"){graf2
+    } else{graf3}}} else{
+      if(input$indic2=="Renta neta media por persona"){
+      graf4
+    } else{if(input$indic2=="Tasa AROPE"){graf5
+    } else{graf6}}
+    }
+  })
+```
+
+
+# Análisis Cluster {data-navmenu="Análisis"}
+
+A continuación, realizaremos un análisis cluster (también conocido como análisis de conglomerados) de las Comunidades Autónomas en referencia a estos principales indicadores (Renta neta media por persona, tasa de pobreza AROPE y coeficiente de gini), de manera que nos permita detectar cuales son las Comunidades más homogéneas y además cuales son las Comunidades con mejores condiciones de vida en el año 2009 y el año 2020.
+
+### Cluster
+
+::: {.col}
+<div>
+
+<h2>
+
+Año 2009
+
+</h2>
+
+```{r}
+basicos_hogar<- read_csv("Microdatos/datos2009/esudb09d.csv")
+basicos_persona<- read_csv("Microdatos/datos2009/esudb09r.csv")
+detallados_hogar<- read_csv("Microdatos/datos2009/esudb09h.csv")
+detallados_persona<- read_csv("Microdatos/datos2009/esudb09p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+dat1= union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+
+dat2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+  
+ccaa=c("Galicia","Asturias","Cantabria","PV","Navarra","Rioja","Aragon","Madrid","CLeon","CMancha","Extremadura","Cataluña","CVal","Baleares","Andalucia","Murcia","Ceuta","Melilla","Canarias")
+dfsn=data.frame(AROPE=dat2$Arope,Renta_per=dat1$renta_persona,gin=dat2$Igini)
+row.names(dfsn)=ccaa
+
+library(cluster)
+library(factoextra)
+library(NbClust)
+
+df<- scale(dfsn)
+m.distancia <- get_dist(df, method = "euclidean") #el método aceptado también puede ser: "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" o "kendall"
+k2 <- kmeans(df, centers = 4, nstart = 25)
+fviz_cluster(k2, data = df, ellipse.type = "euclid",repel = TRUE,star.plot = TRUE)
+```
+
+La formación de cada cluster es la siguiente:
+
+<ol>
+
+<li>
+
+Islas Baleares, La Rioja, Comunidad Valenciana, Castilla y León, Galicia y Castilla y La Mancha.
+
+</li>
+
+<li>
+
+País Vasco, Navarra, Madrid, Cataluña, Aragón, Cantabria y Asturias.
+
+</li>
+
+<li>
+
+Melilla, Andalucía, Canarias, Murcia y Extremadura.
+
+</li>
+
+<li>
+
+Ceuta
+
+</li>
+
+</ol>
+
+Además cada cluster se caracteriza por:
+
+<ol>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 11 mil euros, una tasa de pobreza AROPE del 24% y un indice de Gini de 0,31.
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 13 mil euros, una tasa de pobreza AROPE del 16% y un indice de Gini de 0,3
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 9,5 mil euros, una tasa de pobreza AROPE del 35% y un indice de Gini de 0,33.
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 8,5 mil euros, una tasa de pobreza AROPE del 37% y un indice de Gini de 0,42.
+
+</li>
+
+</ol>
+
+</div>
+
+<div>
+
+<h2>
+
+Año 2020
+
+</h2>
+
+```{r}
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+
+union_personas = basicos_persona %>% inner_join(detallados_persona,c("RB030"="PB030"))
+union_personas %<>% mutate(idhogar=trunc(union_personas$RB030/100))
+union_personas_casa=union_personas %>% left_join(union_hogar,by=c("idhogar"="DB030"))
+dat1= union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+library(ineq)
+library(reldist)
+dat2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+  
+ccaa=c("Galicia","Asturias","Cantabria","PV","Navarra","Rioja","Aragon","Madrid","CLeon","CMancha","Extremadura","Cataluña","CVal","Baleares","Andalucia","Murcia","Ceuta","Melilla","Canarias")
+dfsn=data.frame(AROPE=dat2$Arope,Renta_per=dat1$renta_persona,gin=dat2$Igini)
+row.names(dfsn)=ccaa
+df<- scale(dfsn)
+k2 <- kmeans(df, centers = 4, nstart = 25)
+fviz_cluster(k2, data = df)
+```
+
+La formación de cada cluster es la siguiente:
+
+<ol>
+
+<li>
+
+Castilla la Mancha, Murcia, Andalucía, Canarías y Extremaduras.
+
+</li>
+
+<li>
+
+Asturias, Cantabria, Galicia y Valencia.
+
+</li>
+
+<li>
+
+Melilla y Ceuta.
+
+</li>
+
+<li>
+
+PV, Madrid, Cataluña, Navarra, Rioja, Aragón , Baleares y Castilla León.
+
+</li>
+
+</ol>
+
+Además cada cluster se caracteriza por:
+
+<ol>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 10 mil euros, una tasa de pobreza AROPE del 34% y un indice de Gini de 0,30.
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 12 mil euros, una tasa de pobreza AROPE del 26% y un indice de Gini de 0,32
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 10,5 mil euros, una tasa de pobreza AROPE del 38% y un indice de Gini de 0,42.
+
+</li>
+
+<li>
+
+Una renta neta media por persona aproxidamente de unos 14 mil euros, una tasa de pobreza AROPE del 17% y un indice de Gini de 0,27.
+
+</li>
+
+</ol>
+
+</div>
+:::
+
+# Evolución 2009-2020 Comunidades Autónomas {data-navmenu="Análisis"}
+
+```{r include = FALSE}
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HX040,HX240,vhMATDEP) 
+
+
+x=union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+
+
+
+
+x2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+xb=cbind(x,x2[,-1])
+
+
+LC2020=Lc(union_personas_casa$HY020/union_personas_casa$HX240,n=union_personas_casa$RB050)
+Lorentz2020=data.frame(L=LC2020$L,p=LC2020$p)
+basicos_hogar<- read_csv("Microdatos/datos2009/esudb09d.csv")
+basicos_persona<- read_csv("Microdatos/datos2009/esudb09r.csv")
+detallados_hogar<- read_csv("Microdatos/datos2009/esudb09h.csv")
+detallados_persona<- read_csv("Microdatos/datos2009/esudb09p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HX040,HX240,vhMATDEP) 
+
+
+y=union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+
+
+y2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+yb=cbind(y,y2[,-1])
+union_personas_casa2=detallados_persona %>% separate(PB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+LC2009=Lc(union_personas_casa$HY020/union_personas_casa$HX240,n=union_personas_casa$RB050)
+Lorentz2009=data.frame(L=LC2009$L,p=LC2009$p)
+Año=c(rep(2020,38012),rep(2009,36866))
+Año
+Lorentz=rbind(Lorentz2020,Lorentz2009)
+Lorentz$Año=as.factor(Año)
+
+graflorenz=ggplot(Lorentz,aes(x=p,y=L,color=Año))+
+  geom_line()+
+  coord_fixed()+
+  geom_abline(linetype="dashed")+labs(title="Curva de Lorentz",
+       subtitle="       Año 2009 y Año 2020",
+       y="Renta",x="Población",
+       caption="Fuente:Elaboración Propia TFG")+
+  theme_solarized()
+evolucion=rbind(xb,yb)
+evolucion$Año=rep(c(2020,2009),each=19)
+evolucion$Año=as.character(evolucion$Año) #necesario que este como caracter para el grafico evolucion
+evolucion %<>% pivot_longer(-c(Año,DB040),names_to = "Indicador",values_to = "valor")
+table(evolucion$Indicador)
+evolucion$valor = round(evolucion$valor,2)
+#damos nombre a las comunidades
+library(giscoR)
+nuts2=gisco_get_nuts(year=2016,resolution=20,nuts_level = 2) %>% select(NUTS_ID,NAME_LATN)
+which(nuts2$NUTS_ID=="ES11")
+which(nuts2$NUTS_ID=="ES70")
+evolucion$comunidad=rep(rep(nuts2[187:205,2],each=6),2)
+library(CGPfunctions)
+grafarope2=newggslopegraph(dataframe = filter(evolucion,Indicador=="Arope"),
+                Times=Año,
+                Measurement=valor,
+                Grouping=comunidad,Title = "Evolución Tasa de pobreza AROPE por C.A",
+                SubTitle = "2009-2020.",
+                Caption = "Realizado por mi",
+                DataLabelPadding = 0.2,
+                DataLabelLineSize = 0.5,
+                DataLabelFillColor = "yellow",
+                ThemeChoice = "econ")
+
+
+
+grafgini2=newggslopegraph(dataframe = filter(evolucion,Indicador=="Igini"),
+                Times=Año,
+                Measurement=valor,
+                Grouping=comunidad,Title = "Evolución Indice de Gini por C.A",
+                SubTitle = "2009-2020.",
+                Caption = "Realizado por mi",
+                DataLabelPadding = 0.2,
+                DataLabelLineSize = 0.5,
+                DataLabelFillColor = "yellow",
+                ThemeChoice = "econ")
+
+
+grafrenta2=newggslopegraph(dataframe = filter(evolucion,Indicador=="renta_persona"),
+                Times=Año,
+                Measurement=valor,
+                Grouping=comunidad,Title = "Evolución renta neta media por persona por C.A",
+                SubTitle = "2009-2020.",
+                Caption = "Realizado por mi",
+                DataLabelPadding = 0.2,
+                DataLabelLineSize = 0.5,
+                DataLabelFillColor = "yellow",
+                ThemeChoice = "econ")
+```
+
+## Col 1 {.sidebar}
+<h4> A continuación, debe seleccionar el indicador sobre el cuál desea obtener el gráfico de la evolución en las diferentes comunidades. </h4>
+
+```{r}
+helpText("En el caso de seleccionar la curva de Lorenz, se mostrará la curva relativa a la desigualdad de los ingresos en ambos años en un mismo gráfico")
+      selectInput("indic3","Seleccione indicador:",choices = c("Curva Lorenz","Renta neta media por persona","Tasa AROPE","Índice Gini"))
+```
+
+## Col 2
+```{r}
+renderPlot({
+    if(input$indic3=="Renta neta media por persona"){
+      grafrenta2
+    } else{
+      if(input$indic3=="Curva Lorenz"){
+        graflorenz
+      } else{if(input$indic3=="Tasa AROPE"){
+        grafarope2}else{grafgini2}}
+        }
+    })
+```
+

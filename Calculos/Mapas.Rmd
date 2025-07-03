@@ -1,0 +1,127 @@
+---
+title: "Creación_mapas"
+author: "Victor Toscano Duran"
+date: "9/3/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+En este archivo buscaremos la creación de mapas geograficos de españa en base a una variable asociada a esas areas.(Mapa de coropletas)
+Usaremos los datos incluidos en el paquete giscoR,que proporciona mapas en el formato sf.
+
+```{r}
+#install.packages("giscoR")
+library(giscoR)
+#cargamos librerias adicionales para poder realizar el proceso
+library(sf)
+library(tidyverse)
+library(ggplot2)
+#tgs00026 #ejemplo para trabajar con dicha libreria
+str(tgs00026)
+```
+
+En primer ligar,necesitamos obtener los datos espaciales que contienen la información geografica a ser usada en el gráfico.
+```{r}
+nuts2=gisco_get_nuts(year=2016,resolution=20,nuts_level = 2) %>% select(NUTS_ID,NAME_LATN)
+class(nuts2)
+```
+
+Podemos mejorar el mapa cambiando el sistema de cordenadas de referencia.
+```{r}
+nuts2camb=st_transform(nuts2,3035)
+```
+Cargamos nuestros dataframe que vamos a unir a los datos geograficos y asi crear el mapa a partir de nuestro conjunto de datos
+```{r}
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+```
+Procedemos a realizar los calculos y cambios para tener acorde nuestro conjunto de datos.
+```{r include=FALSE}
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+
+
+library(magrittr)
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HH030,HX060)
+
+npersonashogar=sum(union_hogar$DB090*union_hogar$HH030,na.rm = TRUE)/sum(union_hogar$DB090,na.rm=TRUE)
+
+union_hogar %<>% group_by(DB040) %>% summarise(renta_hogar_ccaa=sum(DB090*vhRentaa)/sum(DB090)) 
+
+renta_mediapersona=sum(union_hogar$DB090*union_hogar$vhRentaa)/sum(union_hogar$DB090)/2.496787
+
+```
+
+Hacemos join para unir los datos estadisticos con los geograficos
+```{r}
+union_estad_geo=nuts2camb %>% right_join(union_hogar,by=c("NUTS_ID"="DB040"))
+class(union_estad_geo)
+```
+Ya tenemos un objeto sf con los datos estadisticos a ser dibujados.
+
+Procedemos ahora a crear el mapa de coropletas básico con ggplot2
+
+```{r}
+graf1=ggplot(union_estad_geo)+
+  geom_sf(aes(fill=renta_hogar_ccaa),color="white",linetype=1,lwd=0.25)+
+  scale_fill_viridis_c(option="B")
+graf1
+```
+
+Podemos modificar más características del mapa para crear un gráfico más llamativo.
+
+Sin ggplot2
+```{r}
+str(union_estad_geo)
+plot(union_estad_geo[,"renta_hogar_ccaa"],
+     breaks="pretty",
+     nbreaks=10,
+     main="Renta media por hogar por C.A")
+
+```
+
+
+
+
+```{r}
+paises <- gisco_get_countries(
+  year = 2016,
+  resolution = 20) %>%
+  st_transform(3035)
+```
+
+```{r}
+modif=union_estad_geo
+min(modif$renta_hogar_ccaa)
+max(modif$renta_hogar_ccaa)
+br=seq(22,38,by=2)*1000
+modif=union_estad_geo
+modif$renta_hogar_ccaa =cut(modif$renta_hogar_ccaa,breaks=br,dig.lab = 5)
+labs=seq(22,38,by=2)
+labs_plot=paste0("(",labs[1:8],"k-",labs[2:9],"k]")
+pal=hcl.colors(9,"Spectral",rev=TRUE,alpha=0.75)
+plot(st_geometry(paises),
+  col = "grey80",
+  border = NA,
+  xlim = c(3200000, 3210000),
+  ylim = c(1400000, 2500000),
+  main = "Renta media hogares")
+mtext("C.A de España (2020)", side = 3, adj = 0)
+plot(st_transform(modif[,"renta_hogar_ccaa"],crs=3035),
+     border=NA,
+     pal=pal,
+     categorical=TRUE,
+     add=TRUE)
+legend(x = "topright",
+       title = "€/hogar",
+       cex = 0.7,
+       bty = "n",
+       inset = 0.02,
+       y.intersp = 1,
+       legend = labs_plot,
+       fill = pal)
+```
+
+Queda pendiente mirar como realizar cambios en el grafico creado por ggplot de maneraa independiente.

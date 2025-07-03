@@ -1,0 +1,267 @@
+---
+title: "Untitled"
+author: "Victor Toscano Duran"
+date: "26/2/2022"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+library(readxl) #Para poder leer archivos excel
+library(tidyverse)
+library(magrittr)
+```
+
+```{r}
+RentaNetaMedia <- read_excel("RentaNetaMedia.xls",range = "A1:D14")
+RentaNetaMedia %<>% arrange(Total)
+UmbralPobreza <- read_excel("UmbralPobreza.xls",range = "A1:B14")
+UmbralPobreza %<>% arrange(Año)
+```
+
+```{r}
+renta=c()
+umbral=c()
+library(mmtable2)#libreria necesaria
+library(gt)
+for(i in 1:12){
+  renta[i]=RentaNetaMedia$`Ambos sexos`[i+1]/RentaNetaMedia$`Ambos sexos`[i]*100-100;
+      umbral[i]=UmbralPobreza$UmbralPobreza[i+1]/UmbralPobreza$UmbralPobreza[i]*100-100}
+
+comparacion=tibble(renta,umbral,Año=2009:2020)
+comparacion=comparacion %>% pivot_longer(1:2,names_to="Indicador",values_to="valores") %>% mutate(valores=round(valores,2))
+
+mean(renta)
+mean(umbral)
+sd(renta)
+sd(umbral)
+tabla=comparacion %>% mmtable(valores) + header_left(Indicador) + header_top(Año)
+tabla %>% tab_header(title="Evolución Renta y Umbral",subtitle="con respecto añ año anterior (%)") %>% tab_source_note("Elaboración propia TFG")
+```
+
+
+
+
+Analisis de Cluster 2020
+
+```{r}
+library(readr)
+library(tidyverse) #para realizar las uniones con dplyr
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+
+union_personas = basicos_persona %>% inner_join(detallados_persona,c("RB030"="PB030"))
+union_personas %<>% mutate(idhogar=trunc(union_personas$RB030/100))
+union_personas_casa=union_personas %>% left_join(union_hogar,by=c("idhogar"="DB030"))
+```
+
+Calculamos indic por comunidad
+```{r}
+dat1= union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+library(ineq)
+library(reldist)
+dat2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+  
+ccaa=c("Galicia","Asturias","Cantabria","PV","Navarra","Rioja","Aragon","Madrid","CLeon","CMancha","Extremadura","Cataluña","CVal","Baleares","Andalucia","Murcia","Ceuta","Melilla","Canarias")
+dfsn=data.frame(AROPE=dat2$Arope,Renta_per=dat1$renta_persona,gin=dat2$Igini)
+row.names(dfsn)=ccaa
+```
+
+Realizamos conglomerado
+
+```{r}
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+packages <- c("tidyverse","cluster", "factoextra","NbClust","tidyr")
+ipak(packages)
+```
+
+```{r}
+df
+df<- scale(dfsn)
+m.distancia <- get_dist(df, method = "euclidean") #el método aceptado también puede ser: "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" o "kendall"
+fviz_dist(m.distancia, gradient = list(low = "blue", mid = "white", high = "red"))
+```
+La existencia de algunas diferencias entre CA en rojos nos da evidencia de que existen grupos y tiene sentido realizar analisis de conglomerados
+
+```{r}
+fviz_nbclust(df, kmeans, method = "wss")
+fviz_nbclust(df, kmeans, method = "silhouette")
+fviz_nbclust(df, kmeans, method = "gap_stat")
+resnumclust<-NbClust(df, distance = "euclidean", min.nc=2, max.nc=6, method = "kmeans", index = "alllong")
+fviz_nbclust(resnumclust)
+
+```
+Nos indica que el número optimo de cluster es 4
+
+```{r}
+k2 <- kmeans(df, centers = 4, nstart = 25)
+k2
+str(k2)
+```
+
+```{r}
+fviz_cluster(k2, data = df)
+fviz_cluster(k2, data = df, ellipse.type = "euclid",repel = TRUE,star.plot = TRUE) #ellipse.type= "t", "norm", "euclid"
+fviz_cluster(k2, data = df, ellipse.type = "norm")
+fviz_cluster(k2, data = df, ellipse.type = "norm",palette = "Set2", ggtheme = theme_minimal())
+```
+
+
+Vemos que se han formado 4 cluster:
+1 cluster: Melilla ceuta
+2 cluster: PV y Navarra
+4 cluster:Comunidades al sur de madrid y valencia
+3 cluster: Comunidades desde madrid y todo el norte exceptuando los del cluster 2
+```{r}
+dfsn$clus<-as.factor(k2$cluster)
+
+dfsn$clus<-factor(dfsn$clus)
+data_long <- gather(dfsn, caracteristica, valor, AROPE:gin, factor_key=TRUE)
+
+ggplot(data_long, aes(as.factor(x = caracteristica), y = valor,group=clus, colour = clus)) + 
+  stat_summary(fun = mean, geom="pointrange", size = 1)+
+  stat_summary(geom="line")+
+  geom_point(aes(shape=clus))
+
+ggplot(data_long, aes(as.factor(x = caracteristica), y = valor,group=clus, colour = clus)) + 
+  stat_summary(fun = mean, geom="pointrange", size = 1)+
+  stat_summary(geom="line")+
+  geom_point(aes(shape=clus))+
+    scale_y_continuous(limits = c(0,0.5))
+```
+
+
+
+Interpretación:Podemos observar que el clister 1 es el que mayor tasa de pobreza y coeficiente de Gini tiene, por lo que podemos decir que es en el que mas desigualdad existe y peores condiciones de vida con la excepción de que tiene una renta algo mayor que el cluster 4.
+El cluster 4 que es el que tiene una renta menor de todos tiene una tasa de pobreza tambien bastante elevada por lo que parece que son comunidades donde las condiciones de vida son peores en el sur de españa y las islas.
+ A diferencia el cluster 3 y el 4 son los que mejores condiciones de vida tienen destacando el cluster 2 como el que tiene mejor condiciones de vida debido a menor tasa de pobreza y mayor renta media, por lo que parece indicar que las comunidades desde madrid al norte son las que tienen mejor condicioens de vida y menor desigualdad destacando dos comunidades que son las perteniencetes al cluster 2:PV Y NAVARRA
+En cuanto a la desigualdad es mayor en el cluster 1 y muy similar en los otros cluster.
+
+
+
+
+Analisis de Cluster 2009
+
+```{r}
+library(readr)
+library(tidyverse) #para realizar las uniones con dplyr
+basicos_hogar<- read_csv("Microdatos/datos2009/esudb09d.csv")
+basicos_persona<- read_csv("Microdatos/datos2009/esudb09r.csv")
+detallados_hogar<- read_csv("Microdatos/datos2009/esudb09h.csv")
+detallados_persona<- read_csv("Microdatos/datos2009/esudb09p.csv")
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+union_personas_casa=basicos_persona %>% separate(RB030,into = c("idhogar","orden"),sep = -2,convert=TRUE) %>%left_join(union_hogar,by=c("idhogar"="DB030"))
+```
+
+Calculamos indic por comunidad
+```{r}
+dat1= union_hogar %>% group_by(DB040) %>% summarise(renta_hogar=sum(DB090*vhRentaa)/sum(DB090),
+          personas_hogar=sum(HX040*DB090)/sum(DB090),
+          renta_persona=sum(DB090*vhRentaa)/sum(DB090)/personas_hogar,
+          hogatpobreza=sum(DB090*vhPobreza)/sum(DB090))
+
+
+
+dat2=union_personas_casa %>% group_by(DB040) %>% summarise(Arope=sum(vrEU2020*RB050)/sum(RB050),
+          Igini=gini(HY020/HX240,weights = RB050),
+          )
+  
+ccaa=c("Galicia","Asturias","Cantabria","PV","Navarra","Rioja","Aragon","Madrid","CLeon","CMancha","Extremadura","Cataluña","CVal","Baleares","Andalucia","Murcia","Ceuta","Melilla","Canarias")
+dfsn=data.frame(AROPE=dat2$Arope,Renta_per=dat1$renta_persona,gin=dat2$Igini)
+row.names(dfsn)=ccaa
+```
+
+Realizamos conglomerado
+
+```{r}
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+packages <- c("tidyverse","cluster", "factoextra","NbClust","tidyr")
+ipak(packages)
+```
+
+```{r}
+df
+df<- scale(dfsn)
+m.distancia <- get_dist(df, method = "euclidean") #el método aceptado también puede ser: "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" o "kendall"
+fviz_dist(m.distancia, gradient = list(low = "blue", mid = "white", high = "red"))
+```
+La existencia de algunas diferencias entre CA en rojos nos da evidencia de que existen grupos y tiene sentido realizar analisis de conglomerados
+
+```{r}
+fviz_nbclust(df, kmeans, method = "wss")
+fviz_nbclust(df, kmeans, method = "silhouette")
+fviz_nbclust(df, kmeans, method = "gap_stat")
+resnumclust<-NbClust(df, distance = "euclidean", min.nc=2, max.nc=6, method = "kmeans", index = "alllong")
+fviz_nbclust(resnumclust)
+
+```
+Nos indica que el número optimo de cluster es 2
+
+```{r}
+k2 <- kmeans(df, centers = 4, nstart = 25)
+k2
+str(k2)
+```
+
+```{r}
+fviz_cluster(k2, data = df)
+fviz_cluster(k2, data = df, ellipse.type = "euclid",repel = TRUE,star.plot = TRUE) #ellipse.type= "t", "norm", "euclid"
+fviz_cluster(k2, data = df, ellipse.type = "norm")
+fviz_cluster(k2, data = df, ellipse.type = "norm",palette = "Set2", ggtheme = theme_minimal())
+```
+
+
+Vemos que se han formado 4 cluster:
+1 cluster: Melilla ceuta
+2 cluster: PV y Navarra
+4 cluster:Comunidades al sur de madrid y valencia
+3 cluster: Comunidades desde madrid y todo el norte exceptuando los del cluster 2
+```{r}
+dfsn$clus<-as.factor(k2$cluster)
+
+dfsn$clus<-factor(dfsn$clus)
+data_long <- gather(dfsn, caracteristica, valor, AROPE:gin, factor_key=TRUE)
+
+ggplot(data_long, aes(as.factor(x = caracteristica), y = valor,group=clus, colour = clus)) + 
+  stat_summary(fun = mean, geom="pointrange", size = 1)+
+  stat_summary(geom="line")+
+  geom_point(aes(shape=clus))
+
+ggplot(data_long, aes(as.factor(x = caracteristica), y = valor,group=clus, colour = clus)) + 
+  stat_summary(fun = mean, geom="pointrange", size = 1)+
+  stat_summary(geom="line")+
+  geom_point(aes(shape=clus))+
+    scale_y_continuous(limits = c(0,0.5))
+```
+
+
+Interpretación:Podemos observar que el clister 1 es el que mayor tasa de pobreza y coeficiente de Gini tiene, por lo que podemos decir que es en el que mas desigualdad existe y peores condiciones de vida con la excepción de que tiene una renta algo mayor que el cluster 4.
+El cluster 4 que es el que tiene una renta menor de todos tiene una tasa de pobreza tambien bastante elevada por lo que parece que son comunidades donde las condiciones de vida son peores en el sur de españa y las islas.
+ A diferencia el cluster 3 y el 4 son los que mejores condiciones de vida tienen destacando el cluster 2 como el que tiene mejor condiciones de vida debido a menor tasa de pobreza y mayor renta media, por lo que parece indicar que las comunidades desde madrid al norte son las que tienen mejor condicioens de vida y menor desigualdad destacando dos comunidades que son las perteniencetes al cluster 2:PV Y NAVARRA
+En cuanto a la desigualdad es mayor en el cluster 1 y muy similar en los otros cluster.

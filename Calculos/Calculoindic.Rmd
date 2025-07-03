@@ -1,0 +1,110 @@
+---
+title: "Microdatos_union"
+author: "Victor Toscano Duran"
+date: "7/3/2022"
+output: html_document
+---
+
+En este archivos vamos a realizar la unión de los ficheros de microdatos,para poder construir los indices y coeficientes de los indicadores y poder realizar el analisis.Además en este archivo se trabajara con los datos de 2020 y será una replica de lo que habra que realizar para los años posteriores.
+
+Cargamos primero los diferentes fichero de datos
+```{r}
+library(readr)
+library(tidyverse) #para realizar las uniones con dplyr
+basicos_hogar<- read_csv("Microdatos/datos_2020/esudb20d.csv")
+basicos_persona<- read_csv("Microdatos/datos_2020/esudb20r.csv")
+detallados_hogar<- read_csv("Microdatos/datos_2020/esudb20h.csv")
+detallados_persona<- read_csv("Microdatos/datos_2020/esudb20p.csv")
+
+```
+
+```{r}
+nrow(basicos_persona)-nrow(detallados_persona) #n de menores de 16 entrevistados.
+nrow(detallados_persona)#n de adultos entrevistados
+nrow(basicos_hogar)#n hogares entrevistados
+```
+Procedemos a realizar una primera unión de los dos archivos de hogares mediante su ID, es decir DB030 Y HB030
+
+```{r}
+union_hogar = basicos_hogar %>% inner_join(detallados_hogar,c("DB030"="HB030"))
+nrow(union_hogar)
+```
+Mantenemos el mismo número de hogares entrevistados,lo que significa que hemos realizado bien la unión.
+Vamos a seleccionar ahora las variables de interes de dicha base de datos y con las que vamos a trabajar
+
+```{r}
+library(magrittr)
+union_hogar %<>% select(DB030,DB040,DB090,HY020,HY010,vhRentaa,vhPobreza,HH030,HX060)
+
+renta_hogar=sum(union_hogar$DB090*union_hogar$vhRentaa)/sum(union_hogar$DB090)
+renta_mediapersona=sum(union_hogar$DB090*union_hogar$vhRentaa)/sum(union_hogar$DB090)/2.496787
+tpobreza=sum(union_hogar$DB090*union_hogar$vhPobreza)/sum(union_hogar$DB090)
+npersonashogar=sum(detallados_hogar$HX040*union_hogar$DB090)/sum(union_hogar$DB090)
+
+```
+
+Intento calculo umbral,no merece la pena.Veamos tmb el ratio s80/s20
+```{r}
+which(is.na(union_hogar$HX060))
+union_hogar %<>% mutate(tipohogar=case_when(HX060 <=6 ~ 1)) %>% filter(tipohogar==1) %>% arrange(vhRentaa)
+x=round(union_hogar$DB090,0)
+vector=rep(union_hogar$vhRentaa,each=x)
+quantile(vector,0.60)
+```
+
+```{r}
+hogar = rep(1,nrow(basicos_hogar))
+union_hogar_orden=union_hogar %>% arrange(vhRentaa)
+quantile(union_hogar_orden$vhRentaa,c(0.20,0.80))
+x=union_hogar_orden %>% select(vhRentaa,DB090) %>% filter(vhRentaa<=14508.26)
+y=union_hogar_orden %>% select(vhRentaa,DB090) %>% filter(vhRentaa>=45902.12)
+sum(y$vhRentaa*y$DB090)/sum(x$vhRentaa*x$DB090)/2.496787
+```
+
+
+```{r}
+
+```
+
+Veamos ahora la unión para las personas.
+
+```{r}
+
+union_personas = basicos_persona %>% inner_join(detallados_persona,c("RB030"="PB030"))
+```
+
+```{r}
+union_hogar2=basicos_hogar %>% inner_join(mu,c("DB030"="HB030"))
+union_personas %<>% separate(RB030,into = c("idhogar","orden"),sep = -2)
+union_personas_casa=union_personas %>% left_join(union_hogar2,by=c("idhogar"="DB030"))
+quantile(sort(union_personas_casa$income),c(0.20,0.80))
+x=union_personas_casa%>%filter(income<10141.60)
+y=union_personas_casa%>% filter(income>26226.48)
+sum(y$income*y$RB050)/sum(x$income*x$RB050)
+uni
+
+```
+Intento s80/s20
+```{r}
+quantile(detallados_hogar$HY020/detallados_hogar$HX240,c(0.20,0.80))
+mu=detallados_hogar %>% mutate(income=HY020/HX240)
+
+```
+
+```{r}
+tpobrezaAROPE=sum(basicos_persona$vrEU2020*basicos_persona$RB050)/sum(basicos_persona$RB050)
+```
+
+Libreria ineq para calcular los indices de desigualdad.los calcuilos no sirven
+
+```{r}
+library(ineq)
+x=rep(uni)
+gini(union_personas_casa$rentaneta,weights = union_personas_casa$PB040)
+plot(Lc(union_hogar$vhRentaa))
+
+
+#BIENNN 
+gini(detallados_hogar$HY020/detallados_hogar$HX240)
+```
+
